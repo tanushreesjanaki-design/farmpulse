@@ -118,8 +118,19 @@
             <p id="result-treatment-label" style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; margin-bottom: 4px;"></p>
             <p id="result-treatment-value" style="color: #374151; margin-bottom: 16px; margin-top: 0;"></p>
             
-            <p id="result-product-label" style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; margin-bottom: 4px;"></p>
-            <div id="result-product-value" style="background: white; border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; margin-bottom: 16px; color: #111827;"></div>
+            <span id="severity-badge" style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 16px;"></span>
+            
+            <p id="result-medicines-label" style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; margin-bottom: 4px;"></p>
+            <div style="display: flex; flex-direction: row; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; flex: 1; min-width: 140px;">
+                    <div id="result-medicine-1-name" style="color: #166534; font-size: 15px; font-weight: bold;"></div>
+                    <div id="result-medicine-1-use" style="color: #6b7280; font-size: 13px; margin-top: 4px;"></div>
+                </div>
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; flex: 1; min-width: 140px;">
+                    <div id="result-medicine-2-name" style="color: #166534; font-size: 15px; font-weight: bold;"></div>
+                    <div id="result-medicine-2-use" style="color: #6b7280; font-size: 13px; margin-top: 4px;"></div>
+                </div>
+            </div>
             
             <button id="speak-btn" style="width: 100%; background: white; color: #166534; border: 2px solid #166534; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;"></button>
         </div>
@@ -131,12 +142,12 @@
         const API_KEY = 'PASTE_KEY_HERE';
 
         const translations = {
-            en: { tagline: 'Free crop disease diagnosis', crop_label: 'Select your crop', upload_text: 'Tap to take photo or upload', diagnose: 'Diagnose Now', loading: 'Analysing your crop...', disease_label: 'DISEASE DETECTED', treatment_label: 'WHAT TO DO', product_label: 'WHAT TO BUY', speak: '🔊 Hear diagnosis aloud', error: 'Could not diagnose. Please take a clearer photo of a sick leaf and try again.', lang_code: 'en-IN' },
-            hi: { tagline: 'मुफ्त फसल रोग निदान', crop_label: 'अपनी फसल चुनें', upload_text: 'फोटो लें या अपलोड करें', diagnose: 'जांच करें', loading: 'फसल का विश्लेषण हो रहा है...', disease_label: 'पहचाना गया रोग', treatment_label: 'क्या करें', product_label: 'क्या खरीदें', speak: '🔊 निदान सुनें', error: 'निदान नहीं हो सका। बीमार पत्ते की साफ फोटो लेकर दोबारा कोशिश करें।', lang_code: 'hi-IN' },
-            kn: { tagline: 'ಉಚಿತ ಬೆಳೆ ರೋಗ ನಿರ್ಣಯ', crop_label: 'ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ', upload_text: 'ಫೋಟೋ ತೆಗೆಯಿರಿ ಅಥವಾ ಅಪ್ಲೋಡ್ ಮಾಡಿ', diagnose: 'ರೋಗನಿರ್ಣಯ ಮಾಡಿ', loading: 'ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...', disease_label: 'ಪತ್ತೆಯಾದ ರೋಗ', treatment_label: 'ಏನು ಮಾಡಬೇಕು', product_label: 'ಏನು ಕೊಳ್ಳಬೇಕು', speak: '🔊 ನಿರ್ಣಯ ಕೇಳಿ', error: 'ರೋಗನಿರ್ಣಯ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ರೋಗಗ್ರಸ್ತ ಎಲೆಯ ಸ್ಪಷ್ಟ ಫೋಟೋ ತೆಗೆದು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.', lang_code: 'kn-IN' },
-            ta: { tagline: 'இலவச பயிர் நோய் கண்டறிதல்', crop_label: 'உங்கள் பயிரை தேர்ந்தெடுங்கள்', upload_text: 'புகைப்படம் எடுக்கவும் அல்லது பதிவேற்றவும்', diagnose: 'கண்டறி', loading: 'பகுப்பாய்வு செய்கிறது...', disease_label: 'கண்டறியப்பட்ட நோய்', treatment_label: 'என்ன செய்வது', product_label: 'என்ன வாங்குவது', speak: '🔊 கண்டறிதலை கேளுங்கள்', error: 'கண்டறிய முடியவில்லை. நோயுற்ற இலையின் தெளிவான புகைப்படம் எடுத்து மீண்டும் முயற்சிக்கவும்.', lang_code: 'ta-IN' },
-            te: { tagline: 'ఉచిత పంట వ్యాధి నిర్ధారణ', crop_label: 'మీ పంటను ఎంచుకోండి', upload_text: 'ఫోటో తీయండి లేదా అప్లోడ్ చేయండి', diagnose: 'నిర్ధారించు', loading: 'విశ్లేషిస్తోంది...', disease_label: 'గుర్తించిన వ్యాధి', treatment_label: 'ఏమి చేయాలి', product_label: 'ఏమి కొనాలి', speak: '🔊 ನಿರ್ధారణ వినండి', error: 'నిర్ధారించలేకపోయాము. జబ్బుపడిన ఆకు యొక్క స్పష్టమైన ఫోటో తీసి మళ్ళీ ప్రయత్నించండి.', lang_code: 'te-IN' },
-            mr: { tagline: 'मोफत पीक रोग निदान', crop_label: 'तुमचे पीक निवडा', upload_text: 'फोटो घ्या किंवा अपलोड करा', diagnose: 'निदान करा', loading: 'विश्लेषण होत आहे...', disease_label: 'आढळलेला रोग', treatment_label: 'काय करावे', product_label: 'काय विकत घ्यावे', speak: '🔊 निदान ऐका', error: 'निदान शक्य नाही. आजारी पानाचा स्पष्ट फोटो घेऊन पुन्हा प्रयत्न करा.', lang_code: 'mr-IN' }
+            en: { tagline: 'Free crop disease diagnosis', crop_label: 'Select your crop', upload_text: 'Tap to take photo or upload', diagnose: 'Diagnose Now', loading: 'Analysing your crop...', disease_label: 'DISEASE DETECTED', treatment_label: 'WHAT TO DO', medicines_label: 'RECOMMENDED MEDICINES', product_label: 'WHAT TO BUY', speak: '🔊 Hear diagnosis aloud', error: 'Could not diagnose. Please take a clearer photo of a sick leaf and try again.', lang_code: 'en-IN' },
+            hi: { tagline: 'मुफ्त फसल रोग निदान', crop_label: 'अपनी फसल चुनें', upload_text: 'फोटो लें या अपलोड करें', diagnose: 'जांच करें', loading: 'फसल का विश्लेषण हो रहा है...', disease_label: 'पहचाना गया रोग', treatment_label: 'क्या करें', medicines_label: 'अनुशंसित दवाएं', product_label: 'क्या खरीदें', speak: '🔊 निदान सुनें', error: 'निदान नहीं हो सका। बीमार पत्ते की साफ फोटो लेकर दोबारा कोशिश करें।', lang_code: 'hi-IN' },
+            kn: { tagline: 'ಉಚಿತ ಬೆಳೆ ರೋಗ ನಿರ್ಣಯ', crop_label: 'ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ', upload_text: 'ಫೋಟೋ ತೆಗೆಯಿರಿ ಅಥವಾ ಅಪ್ಲೋಡ್ ಮಾಡಿ', diagnose: 'ರೋಗನಿರ್ಣಯ ಮಾಡಿ', loading: 'ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...', disease_label: 'ಪತ್ತೆಯಾದ ರೋಗ', treatment_label: 'ಏನು ಮಾಡಬೇಕು', medicines_label: 'ಶಿಫಾರಸು ಮಾಡಿದ ಔಷಧಗಳು', product_label: 'ಏನು ಕೊಳ್ಳಬೇಕು', speak: '🔊 ನಿರ್ಣಯ ಕೇಳಿ', error: 'ರೋಗನಿರ್ಣಯ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ರೋಗಗ್ರಸ್ತ ಎಲೆಯ ಸ್ಪಷ್ಟ ಫೋಟೋ ತೆಗೆದು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.', lang_code: 'kn-IN' },
+            ta: { tagline: 'இலவச பயிர் நோய் கண்டறிதல்', crop_label: 'உங்கள் பயிரை தேர்ந்தெடுங்கள்', upload_text: 'புகைப்படம் எடுக்கவும் அல்லது பதிவேற்றவும்', diagnose: 'கண்டறி', loading: 'பகுப்பாய்வு செய்கிறது...', disease_label: 'கண்டறியப்பட்ட நோய்', treatment_label: 'என்ன செய்வது', medicines_label: 'பரிந்துரைக்கப்பட்ட மருந்துகள்', product_label: 'என்ன வாங்குவது', speak: '🔊 கண்டறிதலை கேளுங்கள்', error: 'கண்டறிய முடியவில்லை. நோயுற்ற இலையின் தெளிவான புகைப்படம் எடுத்து மீண்டும் முயற்சிக்கவும்.', lang_code: 'ta-IN' },
+            te: { tagline: 'ఉచిత పంట వ్యాధి నిర్ధారణ', crop_label: 'మీ పంటను ఎంచుకోండి', upload_text: 'ఫోటో తీయండి లేదా అప్లోడ్ చేయండి', diagnose: 'నిర్ధారించు', loading: 'విశ్లేషిస్తోంది...', disease_label: 'గుర్తించిన వ్యాధి', treatment_label: 'ఏమి చేయాలి', medicines_label: 'సిఫార్సు చేయబడిన మందులు', product_label: 'ఏమి కొనాలి', speak: '🔊 ನಿರ್ధారణ వినండి', error: 'నిర్ధారించలేకపోయాము. జబ్బుపడిన ఆకు యొక్క స్పష్టమైన ఫోటో తీసి మళ్ళీ ప్రయత్నించండి.', lang_code: 'te-IN' },
+            mr: { tagline: 'मोफत पीक रोग निदान', crop_label: 'तुमचे पीक निवडा', upload_text: 'फोटो घ्या किंवा अपलोड करा', diagnose: 'निदान करा', loading: 'विश्लेषण होत आहे...', disease_label: 'आढळलेला रोग', treatment_label: 'काय करावे', medicines_label: 'शिफारस केलेली औषधे', product_label: 'काय विकत घ्यावे', speak: '🔊 निदान ऐका', error: 'निदान शक्य नाही. आजारी पानाचा स्पष्ट फोटो घेऊन पुन्हा प्रयत्न करा.', lang_code: 'mr-IN' }
         };
 
         let selectedLang = 'en';
@@ -210,7 +221,7 @@
                                 },
                                 {
                                     type: 'text',
-                                    text: `You are a plant disease expert helping a small-scale farmer. The farmer grows ${cropType}. Respond ONLY in ${language}. Return ONLY a raw JSON object with no markdown, no backticks, no explanation. JSON must have exactly: disease_name (string), treatment (string, one simple action max 15 words), product_to_buy (string, one specific product name). If image is not a diseased plant set disease_name to Not a plant disease, treatment to Please take a clear photo of a sick leaf, product_to_buy to None.`
+                                    text: `You are a plant disease expert helping a small-scale farmer. The farmer grows ${cropType}. Respond ONLY in ${language}. Return ONLY a raw JSON object with no markdown, no backticks, no explanation. JSON must have exactly: disease_name (string), severity (exactly one of: High, Medium, Low), treatment (string, one simple action max 15 words), medicines (array of exactly 2 objects, each with name (string, a specific real product name) and how_to_use (string, max 15 words)). If image is not a diseased plant set disease_name to Not a plant disease, severity to Low, treatment to Please take a clear photo of a sick leaf, medicines to [{name: None, how_to_use: Not applicable}, {name: None, how_to_use: Not applicable}].`
                                 }
                             ]
                         }]
@@ -247,7 +258,7 @@
             if (lastResult !== null) {
                 document.getElementById('result-disease-label').textContent = t.disease_label;
                 document.getElementById('result-treatment-label').textContent = t.treatment_label;
-                document.getElementById('result-product-label').textContent = t.product_label;
+                document.getElementById('result-medicines-label').textContent = t.medicines_label;
             }
         }
 
@@ -312,12 +323,32 @@
 
                 document.getElementById('result-disease-name').textContent = result.disease_name;
                 document.getElementById('result-treatment-value').textContent = result.treatment;
-                document.getElementById('result-product-value').textContent = result.product_to_buy;
+                
+                const severityBadge = document.getElementById('severity-badge');
+                severityBadge.textContent = result.severity;
+                if (result.severity === 'High') {
+                    severityBadge.style.background = '#fef2f2';
+                    severityBadge.style.color = '#dc2626';
+                    severityBadge.style.border = '1px solid #fecaca';
+                } else if (result.severity === 'Medium') {
+                    severityBadge.style.background = '#fffbeb';
+                    severityBadge.style.color = '#92400e';
+                    severityBadge.style.border = '1px solid #fde68a';
+                } else {
+                    severityBadge.style.background = '#f0fdf4';
+                    severityBadge.style.color = '#166534';
+                    severityBadge.style.border = '1px solid #bbf7d0';
+                }
+                
+                document.getElementById('result-medicine-1-name').textContent = result.medicines[0].name;
+                document.getElementById('result-medicine-1-use').textContent = result.medicines[0].how_to_use;
+                document.getElementById('result-medicine-2-name').textContent = result.medicines[1].name;
+                document.getElementById('result-medicine-2-use').textContent = result.medicines[1].how_to_use;
                 
                 const t = translations[selectedLang];
                 document.getElementById('result-disease-label').textContent = t.disease_label;
                 document.getElementById('result-treatment-label').textContent = t.treatment_label;
-                document.getElementById('result-product-label').textContent = t.product_label;
+                document.getElementById('result-medicines-label').textContent = t.medicines_label;
 
                 resultCard.classList.add('visible');
                 lastResult = result;
@@ -327,7 +358,7 @@
         document.getElementById('speak-btn').addEventListener('click', () => {
             if (!lastResult) return;
             const t = translations[selectedLang];
-            const text = `${t.disease_label}. ${lastResult.disease_name}. ${t.treatment_label}. ${lastResult.treatment}. ${t.product_label}. ${lastResult.product_to_buy}.`;
+            const text = `${t.disease_label}. ${lastResult.disease_name}. ${t.treatment_label}. ${lastResult.treatment}. ${t.medicines_label}. ${lastResult.medicines[0].name}. ${lastResult.medicines[1].name}.`;
             speak(text, t.lang_code);
         });
     </script>
