@@ -1,4 +1,4 @@
-const API_KEY = "PASTE_YOUR_KEY_HERE";
+const API_KEY = 'PASTE_GEMINI_KEY_HERE';
 async function diagnose(base64Image, cropType, language) {
   try {
     const prompt = `You are a plant disease expert helping a small-scale farmer. The farmer grows ${cropType}. Respond ONLY in ${language}. Return ONLY a raw JSON object with no markdown, no backticks, no explanation. JSON must have exactly: disease_name (string), severity (exactly one of: High, Medium, Low), treatment (string, one simple action max 15 words), medicines (array of exactly 2 objects, each with name (string, a specific real product name) and how_to_use (string, max 15 words)). If image is not a diseased plant set disease_name to Not a plant disease, severity to Low, treatment to Please take a clear photo of a sick leaf, medicines to [{name: 'None', how_to_use: 'Not applicable'}, {name: 'None', how_to_use: 'Not applicable'}].`;
