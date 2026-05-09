@@ -7,7 +7,7 @@
   <meta name="description" content="Free crop disease diagnosis for farmers. Works in Hindi, Kannada, Tamil, Telugu, Marathi and English." />
   <title>FarmPulse — Crop Diagnosis</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
   <style>
     :root {
       --green: #166534;
@@ -157,9 +157,7 @@
     window.getUserLocation = getUserLocation;
     window.openNearbyMedicineProviders = openNearbyMedicineProviders;
     window.getHomeRemedies = getHomeRemedies;
-  </script>
 
-  <script>
     /* ─── CONFIG ──────────────────────────────────────────────── */
     const GEMINI_API_KEY = 'PASTE_YOUR_GEMINI_API_KEY_HERE';
 
@@ -319,7 +317,12 @@
     document.getElementById('file-input').addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      compressImage(file).then(base64 => {
+      if (typeof window.compressImage !== 'function') {
+        console.error('compressImage is not available. Check app.js module load.');
+        alert('Upload is not ready yet. Please refresh and try again.');
+        return;
+      }
+      window.compressImage(file).then(base64 => {
         compressedBase64 = base64;
         const img = document.createElement('img');
         img.src = 'data:image/jpeg;base64,' + base64;
@@ -348,7 +351,15 @@
       loadingState.classList.add('visible');
       diagnoseBtn.disabled = true;
 
-      diagnose(compressedBase64, cropValue, langNames[selectedLang]).then(result => {
+      if (typeof window.diagnose !== 'function') {
+        loadingState.classList.remove('visible');
+        diagnoseBtn.disabled = false;
+        console.error('diagnose is not available. Check app.js module load.');
+        alert('Diagnosis engine is not ready yet. Please refresh and try again.');
+        return;
+      }
+
+      window.diagnose(compressedBase64, cropValue, langNames[selectedLang]).then(result => {
         loadingState.classList.remove('visible');
         diagnoseBtn.disabled = false;
 
@@ -381,7 +392,9 @@
         /* Home remedies */
         const remediesBox = document.getElementById('remedies-box');
         document.getElementById('remedies-title').textContent = t.remedies_title;
-        const remedies = getHomeRemedies(result.disease_name);
+      const remedies = (typeof window.getHomeRemedies === 'function')
+        ? window.getHomeRemedies(result.disease_name)
+        : [];
         document.getElementById('remedies-list').innerHTML = remedies.map(r => `<li>${r}</li>`).join('');
         const isNotDisease = result.disease_name.toLowerCase().includes('not a plant');
         remediesBox.style.display = isNotDisease ? 'none' : 'block';
@@ -396,14 +409,18 @@
       const t = translations[selectedLang];
       const meds = (lastResult.medicines || []).map(m => m.name).filter(n => n !== 'None').join(', ');
       const text = `${t.disease_label}. ${lastResult.disease_name}. ${t.treatment_label}. ${lastResult.treatment}. ${t.product_label}. ${meds}.`;
-      speak(text, t.lang_code);
+      if (typeof window.speak === 'function') {
+        window.speak(text, t.lang_code);
+      }
     });
 
     /* ─── NEARBY BUTTON ───────────────────────────────────────── */
     document.getElementById('nearby-btn').addEventListener('click', () => {
       if (!lastResult) return;
       const firstMed = (lastResult.medicines && lastResult.medicines[0]) ? lastResult.medicines[0].name : '';
-      openNearbyMedicineProviders(firstMed, lastResult.disease_name);
+      if (typeof window.openNearbyMedicineProviders === 'function') {
+        window.openNearbyMedicineProviders(firstMed, lastResult.disease_name);
+      }
     });
   </script>
 
