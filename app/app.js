@@ -1,4 +1,4 @@
-const API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE";
+const API_KEY = "AIzaSyAD0kB70mKVgIG7iCvdfOybeqbxYLWFC74";
 
 async function diagnose(base64Image, cropType, language) {
   try {
