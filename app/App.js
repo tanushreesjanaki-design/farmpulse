@@ -89,5 +89,104 @@ function speak(text, langCode) {
   utterance.pitch = 1;
   window.speechSynthesis.speak(utterance);
 }
+function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject("Geolocation is not supported");
+      return;
+    }
 
-export { diagnose, compressImage, speak };
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      },
+      (error) => reject(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  });
+}
+
+function openNearbyMedicineProviders(productName, diseaseName) {
+  getUserLocation()
+    .then((location) => {
+      const query = encodeURIComponent(
+        `nearby fertilizer pesticide agriculture medicine store ${productName} ${diseaseName}`
+      );
+
+      const mapsUrl = `https://www.google.com/maps/search/${query}/@${location.lat},${location.lng},14z`;
+
+      window.open(mapsUrl, "_blank");
+    })
+    .catch(() => {
+      const fallbackQuery = encodeURIComponent(
+        `nearby fertilizer pesticide agriculture medicine store ${productName}`
+      );
+
+      window.open(`https://www.google.com/maps/search/${fallbackQuery}`, "_blank");
+    });
+}
+
+function getHomeRemedies(diseaseName) {
+  const disease = diseaseName.toLowerCase();
+
+  if (disease.includes("blight")) {
+    return [
+      "Remove infected leaves immediately.",
+      "Avoid watering leaves directly.",
+      "Spray diluted neem oil in the evening."
+    ];
+  }
+
+  if (disease.includes("mildew")) {
+    return [
+      "Improve air circulation around plants.",
+      "Avoid overcrowding crops.",
+      "Spray baking soda solution lightly."
+    ];
+  }
+
+  if (disease.includes("rust")) {
+    return [
+      "Remove affected leaves safely.",
+      "Avoid overhead watering.",
+      "Use neem oil as a preventive spray."
+    ];
+  }
+
+  if (disease.includes("leaf spot")) {
+    return [
+      "Remove spotted leaves.",
+      "Keep soil drainage proper.",
+      "Spray neem oil once a week."
+    ];
+  }
+
+  if (disease.includes("rot")) {
+    return [
+      "Reduce excess watering.",
+      "Improve soil drainage.",
+      "Remove badly affected plant parts."
+    ];
+  }
+
+  return [
+    "Remove infected leaves or plant parts.",
+    "Avoid overwatering the crop.",
+    "Use neem oil spray in the evening."
+  ];
+}
+export {
+  diagnose,
+  compressImage,
+  speak,
+  getUserLocation,
+  openNearbyMedicineProviders,
+  getHomeRemedies
+};
