@@ -1,5 +1,4 @@
-const API_KEY = "AIzaSyAD0kB70mKVgIG7iCvdfOybeqbxYLWFC74";
-
+const API_KEY = "PASTE_YOUR_KEY_HERE";
 async function diagnose(base64Image, cropType, language) {
   try {
     const prompt = `You are a plant disease expert.
