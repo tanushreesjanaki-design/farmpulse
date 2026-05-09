@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#166534">
+    <meta name="description" content="Free crop disease diagnosis for farmers. Works in Hindi, Kannada, Tamil, Telugu, Marathi and English.">
+    <title>FarmPulse — Crop Diagnosis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --green: #166534;
+            --green-light: #f0fdf4;
+            --green-border: #bbf7d0;
+            --border: #e5e7eb;
+            --red: #dc2626;
+            --red-light: #fef2f2;
+            --red-border: #fecaca;
+            --text-dark: #111827;
+            --text-mid: #374151;
+            --text-muted: #6b7280;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #bbf7d0;
+            border-top-color: #166534;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .upload-box img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .lang-btn.active {
+            background: #166534;
+            color: white;
+        }
+        
+        .result-card {
+            display: none;
+        }
+        
+        .result-card.visible {
+            display: block;
+        }
+        
+        .loading-state {
+            display: none;
+        }
+        
+        .loading-state.visible {
+            display: flex;
+        }
+        
+        .error-state {
+            display: none;
+        }
+        
+        .error-state.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div style="max-width: 480px; margin: auto; padding: 20px;">
+        <h1 style="color: #166534; text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 8px;">🌿 FarmPulse</h1>
+        <p id="tagline" style="text-align: center; color: #374151; margin-bottom: 24px;"></p>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
+            <button class="lang-btn active" data-lang="en" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb;">English</button>
+            <button class="lang-btn" data-lang="hi" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb;">हिंदी</button>
+            <button class="lang-btn" data-lang="kn" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb;">ಕನ್ನಡ</button>
+            <button class="lang-btn" data-lang="ta" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb;">தமிழ்</button>
+            <button class="lang-btn" data-lang="te" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb;">తెలుగు</button>
+            <button class="lang-btn" data-lang="mr" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb;">मराठी</button>
+        </div>
+
+        <select id="crop-select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 20px; font-size: 16px;">
+            <option value="Tomato">Tomato</option>
+            <option value="Rice">Rice</option>
+            <option value="Wheat">Wheat</option>
+            <option value="Potato">Potato</option>
+            <option value="Cotton">Cotton</option>
+            <option value="Maize">Maize</option>
+        </select>
+
+        <div id="upload-box" class="upload-box" style="position: relative; min-height: 180px; border: 2px dashed #166534; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px;">
+            <span style="font-size: 32px; margin-bottom: 8px;">📷</span>
+            <span id="upload-text" style="color: #374151;"></span>
+            <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none">
+        </div>
+
+        <button id="diagnose-btn" style="width: 100%; background: #166534; color: white; padding: 16px; border-radius: 10px; font-size: 18px; font-weight: bold; margin-bottom: 20px; border: none; cursor: pointer;"></button>
+
+        <div id="loading-state" class="loading-state" style="flex-direction: column; align-items: center; gap: 16px; padding: 32px 0;">
+            <div class="spinner"></div>
+            <p id="loading-text" style="color: #374151; font-weight: 500;"></p>
+        </div>
+
+        <div id="result-card" class="result-card" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 20px; margin-top: 8px; margin-bottom: 20px;">
+            <p id="result-disease-label" style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; margin-bottom: 4px;"></p>
+            <h2 id="result-disease-name" style="font-size: 24px; color: #166534; font-weight: bold; margin-bottom: 16px; margin-top: 0;"></h2>
+            
+            <p id="result-treatment-label" style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; margin-bottom: 4px;"></p>
+            <p id="result-treatment-value" style="color: #374151; margin-bottom: 16px; margin-top: 0;"></p>
+            
+            <p id="result-product-label" style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; margin-bottom: 4px;"></p>
+            <div id="result-product-value" style="background: white; border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; margin-bottom: 16px; color: #111827;"></div>
+            
+            <button id="speak-btn" style="width: 100%; background: white; color: #166534; border: 2px solid #166534; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;"></button>
+        </div>
+
+        <div id="error-state" class="error-state" style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px; color: #dc2626; margin-bottom: 20px; text-align: center;"></div>
+    </div>
+
+    <script>
+        const API_KEY = 'PASTE_KEY_HERE';
+
+        const translations = {
+            en: { tagline: 'Free crop disease diagnosis', crop_label: 'Select your crop', upload_text: 'Tap to take photo or upload', diagnose: 'Diagnose Now', loading: 'Analysing your crop...', disease_label: 'DISEASE DETECTED', treatment_label: 'WHAT TO DO', product_label: 'WHAT TO BUY', speak: '🔊 Hear diagnosis aloud', error: 'Could not diagnose. Please take a clearer photo of a sick leaf and try again.', lang_code: 'en-IN' },
+            hi: { tagline: 'मुफ्त फसल रोग निदान', crop_label: 'अपनी फसल चुनें', upload_text: 'फोटो लें या अपलोड करें', diagnose: 'जांच करें', loading: 'फसल का विश्लेषण हो रहा है...', disease_label: 'पहचाना गया रोग', treatment_label: 'क्या करें', product_label: 'क्या खरीदें', speak: '🔊 निदान सुनें', error: 'निदान नहीं हो सका। बीमार पत्ते की साफ फोटो लेकर दोबारा कोशिश करें।', lang_code: 'hi-IN' },
+            kn: { tagline: 'ಉಚಿತ ಬೆಳೆ ರೋಗ ನಿರ್ಣಯ', crop_label: 'ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ', upload_text: 'ಫೋಟೋ ತೆಗೆಯಿರಿ ಅಥವಾ ಅಪ್ಲೋಡ್ ಮಾಡಿ', diagnose: 'ರೋಗನಿರ್ಣಯ ಮಾಡಿ', loading: 'ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...', disease_label: 'ಪತ್ತೆಯಾದ ರೋಗ', treatment_label: 'ಏನು ಮಾಡಬೇಕು', product_label: 'ಏನು ಕೊಳ್ಳಬೇಕು', speak: '🔊 ನಿರ್ಣಯ ಕೇಳಿ', error: 'ರೋಗನಿರ್ಣಯ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ರೋಗಗ್ರಸ್ತ ಎಲೆಯ ಸ್ಪಷ್ಟ ಫೋಟೋ ತೆಗೆದು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.', lang_code: 'kn-IN' },
+            ta: { tagline: 'இலவச பயிர் நோய் கண்டறிதல்', crop_label: 'உங்கள் பயிரை தேர்ந்தெடுங்கள்', upload_text: 'புகைப்படம் எடுக்கவும் அல்லது பதிவேற்றவும்', diagnose: 'கண்டறி', loading: 'பகுப்பாய்வு செய்கிறது...', disease_label: 'கண்டறியப்பட்ட நோய்', treatment_label: 'என்ன செய்வது', product_label: 'என்ன வாங்குவது', speak: '🔊 கண்டறிதலை கேளுங்கள்', error: 'கண்டறிய முடியவில்லை. நோயுற்ற இலையின் தெளிவான புகைப்படம் எடுத்து மீண்டும் முயற்சிக்கவும்.', lang_code: 'ta-IN' },
+            te: { tagline: 'ఉచిత పంట వ్యాధి నిర్ధారణ', crop_label: 'మీ పంటను ఎంచుకోండి', upload_text: 'ఫోటో తీయండి లేదా అప్లోడ్ చేయండి', diagnose: 'నిర్ధారించు', loading: 'విశ్లేషిస్తోంది...', disease_label: 'గుర్తించిన వ్యాధి', treatment_label: 'ఏమి చేయాలి', product_label: 'ఏమి కొనాలి', speak: '🔊 ನಿರ್ధారణ వినండి', error: 'నిర్ధారించలేకపోయాము. జబ్బుపడిన ఆకు యొక్క స్పష్టమైన ఫోటో తీసి మళ్ళీ ప్రయత్నించండి.', lang_code: 'te-IN' },
+            mr: { tagline: 'मोफत पीक रोग निदान', crop_label: 'तुमचे पीक निवडा', upload_text: 'फोटो घ्या किंवा अपलोड करा', diagnose: 'निदान करा', loading: 'विश्लेषण होत आहे...', disease_label: 'आढळलेला रोग', treatment_label: 'काय करावे', product_label: 'काय विकत घ्यावे', speak: '🔊 निदान ऐका', error: 'निदान शक्य नाही. आजारी पानाचा स्पष्ट फोटो घेऊन पुन्हा प्रयत्न करा.', lang_code: 'mr-IN' }
+        };
+
+        let selectedLang = 'en';
+        let compressedBase64 = null;
+        let lastResult = null;
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        const max_dim = 800;
+
+                        if (width > height) {
+                            if (width > max_dim) {
+                                height *= max_dim / width;
+                                width = max_dim;
+                            }
+                        } else {
+                            if (height > max_dim) {
+                                width *= max_dim / height;
+                                height = max_dim;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        const base64 = dataUrl.replace(/^data:image\/jpeg;base64,/, '');
+                        resolve(base64);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function diagnose(base64Image, cropType, language) {
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 500,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: 'image/jpeg',
+                                        data: base64Image
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: `You are a plant disease expert helping a small-scale farmer. The farmer grows ${cropType}. Respond ONLY in ${language}. Return ONLY a raw JSON object with no markdown, no backticks, no explanation. JSON must have exactly: disease_name (string), treatment (string, one simple action max 15 words), product_to_buy (string, one specific product name). If image is not a diseased plant set disease_name to Not a plant disease, treatment to Please take a clear photo of a sick leaf, product_to_buy to None.`
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) throw new Error('API Error');
+                
+                const data = await response.json();
+                return JSON.parse(data.content[0].text);
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        function speak(text, langCode) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = langCode;
+            utterance.rate = 0.85;
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateUI() {
+            const t = translations[selectedLang];
+            document.getElementById('tagline').textContent = t.tagline;
+            document.getElementById('upload-text').textContent = t.upload_text;
+            document.getElementById('diagnose-btn').textContent = t.diagnose;
+            document.getElementById('loading-text').textContent = t.loading;
+            document.getElementById('speak-btn').textContent = t.speak;
+            
+            if (lastResult !== null) {
+                document.getElementById('result-disease-label').textContent = t.disease_label;
+                document.getElementById('result-treatment-label').textContent = t.treatment_label;
+                document.getElementById('result-product-label').textContent = t.product_label;
+            }
+        }
+
+        updateUI();
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectedLang = btn.getAttribute('data-lang');
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateUI();
+            });
+        });
+
+        document.getElementById('upload-box').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                compressImage(e.target.files[0]).then(base64 => {
+                    compressedBase64 = base64;
+                    const img = document.createElement('img');
+                    img.src = 'data:image/jpeg;base64,' + compressedBase64;
+                    const uploadBox = document.getElementById('upload-box');
+                    const fileInput = document.getElementById('file-input');
+                    uploadBox.innerHTML = '';
+                    uploadBox.appendChild(img);
+                    uploadBox.appendChild(fileInput);
+                }).catch(console.error);
+            }
+        });
+
+        document.getElementById('diagnose-btn').addEventListener('click', () => {
+            if (!compressedBase64) {
+                alert('Please select a photo first');
+                return;
+            }
+
+            const cropValue = document.getElementById('crop-select').value;
+            const langNames = { en: 'English', hi: 'Hindi', kn: 'Kannada', ta: 'Tamil', te: 'Telugu', mr: 'Marathi' };
+            
+            const resultCard = document.getElementById('result-card');
+            const errorState = document.getElementById('error-state');
+            const loadingState = document.getElementById('loading-state');
+            const diagnoseBtn = document.getElementById('diagnose-btn');
+
+            resultCard.classList.remove('visible');
+            errorState.classList.remove('visible');
+            loadingState.classList.add('visible');
+            diagnoseBtn.disabled = true;
+
+            diagnose(compressedBase64, cropValue, langNames[selectedLang]).then(result => {
+                loadingState.classList.remove('visible');
+                diagnoseBtn.disabled = false;
+
+                if (!result) {
+                    errorState.classList.add('visible');
+                    errorState.textContent = translations[selectedLang].error;
+                    return;
+                }
+
+                document.getElementById('result-disease-name').textContent = result.disease_name;
+                document.getElementById('result-treatment-value').textContent = result.treatment;
+                document.getElementById('result-product-value').textContent = result.product_to_buy;
+                
+                const t = translations[selectedLang];
+                document.getElementById('result-disease-label').textContent = t.disease_label;
+                document.getElementById('result-treatment-label').textContent = t.treatment_label;
+                document.getElementById('result-product-label').textContent = t.product_label;
+
+                resultCard.classList.add('visible');
+                lastResult = result;
+            });
+        });
+
+        document.getElementById('speak-btn').addEventListener('click', () => {
+            if (!lastResult) return;
+            const t = translations[selectedLang];
+            const text = `${t.disease_label}. ${lastResult.disease_name}. ${t.treatment_label}. ${lastResult.treatment}. ${t.product_label}. ${lastResult.product_to_buy}.`;
+            speak(text, t.lang_code);
+        });
+    </script>
+</body>
+</html>
