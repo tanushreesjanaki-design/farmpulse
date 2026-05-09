@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmPulse</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #d9f99d, #86efac);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: 90%;
+      max-width: 520px;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    h1 {
+      text-align: center;
+      color: #166534;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #16a34a;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #15803d;
+    }
+
+    img {
+      width: 100%;
+      margin-top: 15px;
+      border-radius: 15px;
+      display: none;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0fdf4;
+      border-left: 5px solid #16a34a;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .small {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>🌱 FarmPulse</h1>
+    <p class="small">AI crop disease diagnosis for farmers</p>
+
+    <label>Upload crop leaf image</label>
+    <input type="file" id="imageInput" accept="image/*" />
+
+    <label>Select crop</label>
+    <select id="cropType">
+      <option>Tomato</option>
+      <option>Rice</option>
+      <option>Potato</option>
+      <option>Wheat</option>
+      <option>Chilli</option>
+      <option>Cotton</option>
+    </select>
+
+    <label>Select language</label>
+    <select id="language">
+      <option>English</option>
+      <option>Hindi</option>
+      <option>Kannada</option>
+      <option>Tamil</option>
+      <option>Telugu</option>
+    </select>
+
+    <button id="diagnoseBtn">Diagnose Disease</button>
+
+    <img id="preview" />
+
+    <div id="result"></div>
+  </div>
+
+  <script type="module">
+    import { diagnose, compressImage, speak } from "./app.js";
+
+    const imageInput = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+    const resultDiv = document.getElementById("result");
+    const diagnoseBtn = document.getElementById("diagnoseBtn");
+
+    let selectedFile = null;
+
+    imageInput.addEventListener("change", (event) => {
+      selectedFile = event.target.files[0];
+
+      if (selectedFile) {
+        preview.src = URL.createObjectURL(selectedFile);
+        preview.style.display = "block";
+      }
+    });
+
+    diagnoseBtn.addEventListener("click", async () => {
+      if (!selectedFile) {
+        alert("Please upload a crop image first");
+        return;
+      }
+
+      const cropType = document.getElementById("cropType").value;
+      const language = document.getElementById("language").value;
+
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = "🔍 Analyzing crop image...";
+
+      const base64Image = await compressImage(selectedFile);
+      const result = await diagnose(base64Image, cropType, language);
+
+      if (!result) {
+        resultDiv.innerHTML = "❌ Diagnosis failed. Try another image.";
+        return;
+      }
+
+      resultDiv.innerHTML = `
+        <h3>🦠 Disease: ${result.disease_name}</h3>
+        <p><b>💊 Treatment:</b> ${result.treatment}</p>
+        <p><b>🛒 Product to buy:</b> ${result.product_to_buy}</p>
+      `;
+
+      speak(
+        `${result.disease_name}. ${result.treatment}. Product to buy: ${result.product_to_buy}`,
+        language
+      );
+    });
+  </script>
+</body>
+</html>
