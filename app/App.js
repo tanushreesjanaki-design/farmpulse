@@ -101,15 +101,12 @@ function getLangCode(language) {
   return languages[language] || "en-US";
 }
 
-function speak(text, language) {
-  if (!window.speechSynthesis) return;
-
+function speak(text, langCode) {
   window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = getLangCode(language);
+  utterance.lang = langCode;
   utterance.rate = 0.85;
-
+  utterance.pitch = 1;
   window.speechSynthesis.speak(utterance);
 }
 
