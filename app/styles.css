@@ -1,0 +1,657 @@
+/* ============================================================
+   FARMPULSE — Harvest Festival Maximalism v3
+   Features: Glassmorphism · Hex BG · Scanline · Stagger · Cursor
+             Severity Badges · Medicine Cards · Home Remedies
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+/* ── Variables ───────────────────────────────────────────── */
+:root {
+  --green-deep:     #0a3d1f;
+  --green-mid:      #166534;
+  --green-vivid:    #22c55e;
+  --green-light:    #dcfce7;
+  --saffron:        #f59e0b;
+  --saffron-deep:   #d97706;
+  --marigold:       #fbbf24;
+  --earth:          #78350f;
+  --sky:            #0ea5e9;
+  --shadow-green:   rgba(22,101,52,0.22);
+  --shadow-saffron: rgba(245,158,11,0.28);
+  --glass-bg:       rgba(255,253,235,0.52);
+  --glass-border:   rgba(255,255,255,0.72);
+}
+
+/* ── Body & full-page background ────────────────────────── */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: 'Nunito', sans-serif !important;
+  min-height: 100vh !important;
+  overflow-x: hidden !important;
+  background: linear-gradient(145deg, #e8f5e9 0%, #fffde7 38%, #f1f8e9 68%, #e0f7fa 100%) !important;
+}
+
+/* Fixed particle canvas (injected by JS) */
+#fp-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Drifting hex grid overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.065;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zM0 50l28 16 28-16' fill='none' stroke='%23166534' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+  animation: hexDrift 55s linear infinite;
+}
+@keyframes hexDrift {
+  from { background-position: 0 0; }
+  to   { background-position: 56px 200px; }
+}
+
+/* ── Glassmorphism main container ────────────────────────── */
+body > div {
+  max-width: 480px !important;
+  margin: 0 auto !important;
+  padding: 32px 24px 44px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  min-height: 100vh !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(24px) saturate(1.7) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.7) !important;
+  border-left: 1.5px solid var(--glass-border) !important;
+  border-right: 1.5px solid var(--glass-border) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.38) inset,
+    4px 0 32px rgba(22,101,52,0.08),
+    -4px 0 32px rgba(245,158,11,0.06) !important;
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden !important;
+}
+
+/* Cursor shine element (added by JS) */
+#fp-shine {
+  position: absolute;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 65%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+  top: 50%; left: 50%;
+}
+
+/* Rainbow top stripe */
+body > div::before {
+  content: '';
+  display: block;
+  height: 5px;
+  width: 75%;
+  margin: 0 auto 32px;
+  border-radius: 99px;
+  background: linear-gradient(90deg,
+    var(--green-mid) 0%,
+    var(--saffron) 25%,
+    var(--green-vivid) 55%,
+    var(--marigold) 75%,
+    var(--sky) 100%
+  );
+  box-shadow: 0 2px 14px rgba(245,158,11,0.28);
+}
+
+/* ── Title ───────────────────────────────────────────────── */
+h1 {
+  font-family: 'Baloo 2', cursive !important;
+  font-size: 34px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  margin: 0 0 8px !important;
+  letter-spacing: -0.5px !important;
+  background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 45%, var(--saffron-deep) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: titlePop 0.7s cubic-bezier(0.34,1.56,0.64,1) both !important;
+}
+
+/* ── Tagline ─────────────────────────────────────────────── */
+#tagline {
+  text-align: center !important;
+  color: var(--earth) !important;
+  font-style: italic !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin: 0 0 28px !important;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.2s both !important;
+}
+
+/* ── Language buttons ────────────────────────────────────── */
+div[style*="flex-wrap"] {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  margin-bottom: 24px !important;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.3s both !important;
+}
+
+.lang-btn {
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid var(--saffron) !important;
+  background: rgba(255,255,255,0.72) !important;
+  color: var(--earth) !important;
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1) !important;
+  box-shadow: 0 2px 10px rgba(245,158,11,0.10) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate;
+}
+.lang-btn:hover {
+  transform: translateY(-3px) scale(1.07) !important;
+  box-shadow: 0 8px 22px var(--shadow-saffron) !important;
+  border-color: var(--saffron-deep) !important;
+}
+.lang-btn.active {
+  background: linear-gradient(135deg, var(--saffron), var(--marigold)) !important;
+  color: white !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 22px var(--shadow-saffron) !important;
+  transform: translateY(-2px) !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.18) !important;
+}
+/* Ripple (injected by JS) */
+.fp-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(245,158,11,0.38);
+  width: 6px; height: 6px;
+  transform: scale(0);
+  animation: rippleOut 0.55s linear forwards;
+  pointer-events: none;
+}
+@keyframes rippleOut {
+  to { transform: scale(20); opacity: 0; }
+}
+
+/* ── Crop Select ─────────────────────────────────────────── */
+#crop-select {
+  width: 100% !important;
+  padding: 14px 44px 14px 16px !important;
+  border-radius: 14px !important;
+  border: 2px solid var(--saffron) !important;
+  margin-bottom: 22px !important;
+  font-size: 16px !important;
+  font-family: 'Nunito', sans-serif !important;
+  font-weight: 700 !important;
+  color: var(--green-deep) !important;
+  background-color: rgba(255,255,255,0.8) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.12) !important;
+  transition: all 0.2s ease !important;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.35s both !important;
+}
+#crop-select:focus {
+  outline: none !important;
+  border-color: var(--green-mid) !important;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.18), 0 4px 16px rgba(245,158,11,0.12) !important;
+}
+
+/* ── Upload Box + scanline ───────────────────────────────── */
+#upload-box, .upload-box {
+  position: relative !important;
+  min-height: 190px !important;
+  border: 2.5px dashed var(--saffron-deep) !important;
+  border-radius: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 22px !important;
+  background: linear-gradient(135deg, rgba(255,251,235,0.85), rgba(220,252,231,0.55)) !important;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1) !important;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.10) !important;
+  overflow: hidden !important;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.4s both !important;
+}
+/* Scanline sweep on hover */
+#upload-box::after, .upload-box::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--green-vivid) 30%, rgba(255,255,255,0.8) 50%, var(--green-vivid) 70%, transparent 100%);
+  box-shadow: 0 0 14px 4px rgba(34,197,94,0.55);
+  border-radius: 2px;
+  top: 0%;
+  opacity: 0;
+  pointer-events: none;
+}
+#upload-box:hover::after, .upload-box:hover::after {
+  opacity: 1;
+  animation: scanline 1.5s ease-in-out infinite !important;
+}
+@keyframes scanline {
+  0%   { top: 0%; }
+  100% { top: 100%; }
+}
+#upload-box:hover, .upload-box:hover {
+  border-color: var(--green-mid) !important;
+  border-style: solid !important;
+  background: linear-gradient(135deg, rgba(220,252,231,0.75), rgba(254,243,199,0.55)) !important;
+  transform: scale(1.015) !important;
+  box-shadow: 0 10px 36px var(--shadow-green) !important;
+}
+/* Camera emoji bounce */
+#upload-box > span:first-of-type,
+.upload-box > span[style*="32px"] {
+  font-size: 44px !important;
+  margin-bottom: 10px !important;
+  display: block !important;
+  animation: cameraBounce 2.8s ease-in-out infinite !important;
+  filter: drop-shadow(0 4px 8px rgba(22,101,52,0.22)) !important;
+}
+#upload-text {
+  color: var(--earth) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+}
+
+/* ── Diagnose button ─────────────────────────────────────── */
+#diagnose-btn {
+  width: 100% !important;
+  background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 55%, #15803d 100%) !important;
+  color: white !important;
+  padding: 19px !important;
+  border-radius: 16px !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  font-family: 'Baloo 2', cursive !important;
+  margin-bottom: 26px !important;
+  border: none !important;
+  letter-spacing: 0.3px !important;
+  box-shadow: 0 10px 32px var(--shadow-green), 0 2px 0 rgba(255,255,255,0.1) inset !important;
+  transition: box-shadow 0.25s ease, background 0.25s ease, transform 0.2s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  will-change: transform;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.5s both !important;
+}
+/* shine sweep */
+#diagnose-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 55%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.24), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.6s ease;
+}
+#diagnose-btn:hover::after { left: 140%; }
+#diagnose-btn:hover {
+  background: linear-gradient(135deg, #0a3d1f 0%, #15803d 55%, var(--green-vivid) 100%) !important;
+  box-shadow: 0 18px 48px var(--shadow-green) !important;
+  transform: translateY(-2px) !important;
+}
+#diagnose-btn:active  { transform: scale(0.97) !important; }
+#diagnose-btn:disabled { opacity: 0.6 !important; box-shadow: none !important; transform: none !important; }
+
+/* ── Loading State ───────────────────────────────────────── */
+#loading-state, .loading-state {
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 36px 0 !important;
+}
+.spinner {
+  width: 54px !important;
+  height: 54px !important;
+  border: 4px solid var(--green-light) !important;
+  border-top-color: var(--saffron) !important;
+  border-right-color: var(--green-mid) !important;
+  border-radius: 50% !important;
+  animation: spin 0.75s linear infinite !important;
+  filter: drop-shadow(0 0 12px rgba(245,158,11,0.45)) !important;
+}
+#loading-text {
+  color: var(--green-mid) !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  animation: pulse 1.6s ease-in-out infinite !important;
+}
+
+/* ── Result Card — staggered ─────────────────────────────── */
+#result-card, .result-card {
+  background: linear-gradient(145deg, rgba(240,253,244,0.95), rgba(236,252,203,0.9), rgba(254,252,232,0.95)) !important;
+  border: 2px solid #86efac !important;
+  border-radius: 22px !important;
+  padding: 26px !important;
+  margin-top: 8px !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 16px 48px rgba(22,101,52,0.14), 0 2px 0 rgba(255,255,255,0.9) inset !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+#result-card::before {
+  content: '🌿';
+  position: absolute;
+  top: -10px; right: 10px;
+  font-size: 60px;
+  opacity: 0.09;
+  transform: rotate(22deg);
+  pointer-events: none;
+}
+.result-card.visible {
+  display: block !important;
+  animation: cardPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both !important;
+}
+/* Staggered slide-in for each section */
+.result-card.visible #result-disease-label    { animation: staggerIn 0.4s ease 0.05s both !important; }
+.result-card.visible #result-disease-name     { animation: staggerIn 0.4s ease 0.11s both !important; }
+.result-card.visible #result-severity-wrap    { animation: staggerIn 0.4s ease 0.17s both !important; }
+.result-card.visible #result-treatment-label  { animation: staggerIn 0.4s ease 0.23s both !important; }
+.result-card.visible #result-treatment-value  { animation: staggerIn 0.4s ease 0.29s both !important; }
+.result-card.visible #result-product-label    { animation: staggerIn 0.4s ease 0.35s both !important; }
+.result-card.visible #result-medicines        { animation: staggerIn 0.4s ease 0.41s both !important; }
+.result-card.visible #remedies-box            { animation: staggerIn 0.4s ease 0.47s both !important; }
+.result-card.visible #nearby-btn              { animation: staggerIn 0.4s ease 0.53s both !important; }
+.result-card.visible #speak-btn               { animation: staggerIn 0.4s ease 0.59s both !important; }
+
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+#result-disease-label,
+#result-treatment-label,
+#result-product-label {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  color: var(--saffron-deep) !important;
+  font-weight: 800 !important;
+  font-family: 'Baloo 2', cursive !important;
+  letter-spacing: 0.13em !important;
+  margin-bottom: 4px !important;
+}
+#result-disease-name {
+  font-size: 26px !important;
+  font-family: 'Baloo 2', cursive !important;
+  font-weight: 800 !important;
+  color: var(--green-deep) !important;
+  margin: 0 0 10px !important;
+  line-height: 1.2 !important;
+  min-height: 1.3em;
+}
+/* Typewriter blinking cursor */
+#result-disease-name.typing::after {
+  content: '|';
+  color: var(--saffron);
+  font-weight: 300;
+  animation: blink 0.7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── Severity badge ──────────────────────────────────────── */
+#result-severity-wrap {
+  margin-bottom: 16px !important;
+}
+.severity-badge {
+  display: inline-block !important;
+  padding: 5px 14px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  font-family: 'Baloo 2', cursive !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
+}
+.severity-high {
+  background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+  color: #dc2626 !important;
+  border: 1.5px solid #fca5a5 !important;
+  box-shadow: 0 2px 12px rgba(220,38,38,0.18) !important;
+}
+.severity-medium {
+  background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+  color: #d97706 !important;
+  border: 1.5px solid #fcd34d !important;
+  box-shadow: 0 2px 12px rgba(217,119,6,0.18) !important;
+}
+.severity-low {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+  color: var(--green-mid) !important;
+  border: 1.5px solid #86efac !important;
+  box-shadow: 0 2px 12px rgba(22,101,52,0.14) !important;
+}
+
+#result-treatment-value {
+  color: #374151 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin: 0 0 18px !important;
+  line-height: 1.6 !important;
+}
+
+/* ── Medicine cards ──────────────────────────────────────── */
+#result-medicines {
+  margin-bottom: 18px !important;
+}
+.medicine-card {
+  background: rgba(255,255,255,0.92) !important;
+  border: 1.5px solid var(--green-border, #bbf7d0) !important;
+  border-left: 4px solid var(--saffron) !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 10px !important;
+  box-shadow: 0 2px 12px rgba(245,158,11,0.09) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+.medicine-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(245,158,11,0.18) !important;
+}
+.medicine-name {
+  color: var(--green-deep) !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  font-family: 'Baloo 2', cursive !important;
+  margin-bottom: 5px !important;
+}
+.medicine-use {
+  color: var(--text-mid, #374151) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+}
+
+/* ── Home remedies box ───────────────────────────────────── */
+.remedies-box {
+  background: linear-gradient(135deg, rgba(255,253,231,0.9), rgba(240,253,244,0.8)) !important;
+  border: 1.5px solid var(--marigold) !important;
+  border-radius: 16px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 2px 12px rgba(251,191,36,0.12) !important;
+}
+.remedies-box h3, #remedies-title {
+  color: var(--earth) !important;
+  font-family: 'Baloo 2', cursive !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  margin: 0 0 10px !important;
+  text-transform: uppercase !important;
+}
+.remedies-box ul {
+  margin: 0 !important;
+  padding-left: 20px !important;
+}
+.remedies-box li {
+  color: var(--green-deep) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  line-height: 1.75 !important;
+  margin-bottom: 2px !important;
+}
+
+/* ── Nearby store button ─────────────────────────────────── */
+.nearby-btn, #nearby-btn {
+  display: block !important;
+  width: 100% !important;
+  background: linear-gradient(135deg, var(--saffron) 0%, var(--marigold) 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 15px !important;
+  border-radius: 14px !important;
+  font-family: 'Baloo 2', cursive !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  margin-bottom: 14px !important;
+  box-shadow: 0 8px 24px var(--shadow-saffron) !important;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1) !important;
+  text-shadow: 0 1px 4px rgba(120,53,15,0.22) !important;
+  letter-spacing: 0.2px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.nearby-btn::after, #nearby-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 55%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.5s ease;
+}
+.nearby-btn:hover::after, #nearby-btn:hover::after { left: 140%; }
+.nearby-btn:hover, #nearby-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 14px 36px var(--shadow-saffron) !important;
+}
+.nearby-btn:active, #nearby-btn:active { transform: scale(0.97) !important; }
+
+/* ── Speak button ────────────────────────────────────────── */
+#speak-btn {
+  width: 100% !important;
+  background: rgba(255,255,255,0.85) !important;
+  color: var(--sky) !important;
+  border: 2px solid var(--sky) !important;
+  padding: 14px !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  font-family: 'Baloo 2', cursive !important;
+  transition: all 0.22s ease !important;
+  box-shadow: 0 4px 16px rgba(14,165,233,0.14) !important;
+}
+#speak-btn:hover {
+  background: var(--sky) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px rgba(14,165,233,0.30) !important;
+}
+
+/* ── Error State ─────────────────────────────────────────── */
+#error-state, .error-state {
+  background: rgba(254,242,242,0.92) !important;
+  border: 2px solid #fca5a5 !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+  color: #dc2626 !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+}
+.error-state.visible {
+  display: block !important;
+  animation: shake 0.45s cubic-bezier(0.36,0.07,0.19,0.97) both !important;
+}
+.error-state.visible::before { content: '⚠️  '; }
+
+/* ── Custom leaf cursor ──────────────────────────────────── */
+#fp-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 34px; height: 34px;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+  transition: width 0.18s ease, height 0.18s ease;
+}
+#fp-cursor svg {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 2px 6px rgba(22,101,52,0.4));
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), filter 0.22s ease;
+}
+#fp-cursor.hovering { width: 44px; height: 44px; }
+#fp-cursor.hovering svg {
+  transform: rotate(-20deg);
+  filter: drop-shadow(0 4px 12px rgba(245,158,11,0.65));
+}
+#fp-cursor.clicking svg { transform: scale(0.75) rotate(15deg); }
+
+/* ── Keyframes ───────────────────────────────────────────── */
+@keyframes spin      { to { transform: rotate(360deg); } }
+@keyframes pulse     { 0%,100%{opacity:1} 50%{opacity:0.45} }
+@keyframes cameraBounce {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50%     { transform: translateY(-10px) rotate(4deg); }
+}
+@keyframes titlePop {
+  from { opacity:0; transform: scale(0.84) translateY(-14px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+@keyframes cardPop {
+  from { opacity:0; transform: scale(0.9) translateY(14px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+@keyframes shake {
+  10%,90%     { transform: translateX(-2px); }
+  20%,80%     { transform: translateX(5px); }
+  30%,50%,70% { transform: translateX(-7px); }
+  40%,60%     { transform: translateX(7px); }
+  100%         { transform: translateX(0); }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body { padding-bottom: 40px; }
+  h1   { font-size: 26px !important; }
+  #diagnose-btn { font-size: 17px !important; padding: 15px !important; }
+  .lang-btn     { font-size: 12px !important; padding: 7px 10px !important; }
+  #result-card  { padding: 16px !important; }
+  .medicine-card { padding: 11px 13px !important; }
+}
